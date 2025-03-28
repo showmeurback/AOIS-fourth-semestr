@@ -6,28 +6,28 @@
 
 class Minimizer {
 private:
-    std::vector<std::vector<bool>> minterms; // Наборы для СДНФ
-    std::vector<std::vector<bool>> maxterms; // Наборы для СКНФ
-    int variables; // Количество переменных (a, b, c)
+    std::vector<std::vector<bool>> minterms; 
+    std::vector<std::vector<bool>> maxterms; 
+    int variables; 
 
-    // Вспомогательные методы
+    // Г‚Г±ГЇГ®Г¬Г®ГЈГ ГІГҐГ«ГјГ­Г»ГҐ Г¬ГҐГІГ®Г¤Г»
     std::string termToString(const std::vector<bool>& term, bool isDNF) const;
     int hammingDistance(const std::vector<bool>& t1, const std::vector<bool>& t2) const;
     std::vector<bool> glueTerms(const std::vector<bool>& t1, const std::vector<bool>& t2) const;
     bool isCovered(const std::vector<bool>& term, const std::vector<std::vector<bool>>& implicants) const;
 
 public:
-    Minimizer(int vars = 3); // По умолчанию 3 переменные (a, b, c)
-    void addMinterm(const std::vector<bool>& term); // Добавить набор для СДНФ
-    void addMaxterm(const std::vector<bool>& term); // Добавить набор для СКНФ
+    Minimizer(int vars = 3); // ГЏГ® ГіГ¬Г®Г«Г·Г Г­ГЁГѕ 3 ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г»ГҐ (a, b, c)
+    void addMinterm(const std::vector<bool>& term); // Г„Г®ГЎГ ГўГЁГІГј Г­Г ГЎГ®Г° Г¤Г«Гї Г‘Г„ГЌГ”
+    void addMaxterm(const std::vector<bool>& term); // Г„Г®ГЎГ ГўГЁГІГј Г­Г ГЎГ®Г° Г¤Г«Гї Г‘ГЉГЌГ”
 
-    // Методы минимизации
-    std::string minimizeDNFCalculation(); // Расчетный метод для СДНФ
-    std::string minimizeCNFCalculation(); // Расчетный метод для СКНФ
-    std::string minimizeDNFCalcTable();   // Расчетно-табличный для СДНФ
-    std::string minimizeCNFCalcTable();   // Расчетно-табличный для СКНФ
-    std::string minimizeDNFKarnaugh();    // Табличный (карта Карно) для СДНФ
-    std::string minimizeCNFKarnaugh();    // Табличный (карта Карно) для СКНФ
+    // ГЊГҐГІГ®Г¤Г» Г¬ГЁГ­ГЁГ¬ГЁГ§Г Г¶ГЁГЁ
+    std::string minimizeDNFCalculation(); // ГђГ Г±Г·ГҐГІГ­Г»Г© Г¬ГҐГІГ®Г¤ Г¤Г«Гї Г‘Г„ГЌГ”
+    std::string minimizeCNFCalculation(); // ГђГ Г±Г·ГҐГІГ­Г»Г© Г¬ГҐГІГ®Г¤ Г¤Г«Гї Г‘ГЉГЌГ”
+    std::string minimizeDNFCalcTable();   // ГђГ Г±Г·ГҐГІГ­Г®-ГІГ ГЎГ«ГЁГ·Г­Г»Г© Г¤Г«Гї Г‘Г„ГЌГ”
+    std::string minimizeCNFCalcTable();   // ГђГ Г±Г·ГҐГІГ­Г®-ГІГ ГЎГ«ГЁГ·Г­Г»Г© Г¤Г«Гї Г‘ГЉГЌГ”
+    std::string minimizeDNFKarnaugh();    // Г’Г ГЎГ«ГЁГ·Г­Г»Г© (ГЄГ Г°ГІГ  ГЉГ Г°Г­Г®) Г¤Г«Гї Г‘Г„ГЌГ”
+    std::string minimizeCNFKarnaugh();    // Г’Г ГЎГ«ГЁГ·Г­Г»Г© (ГЄГ Г°ГІГ  ГЉГ Г°Г­Г®) Г¤Г«Гї Г‘ГЉГЌГ”
 };
 
 #endif
