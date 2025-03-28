@@ -59,8 +59,6 @@ bool Minimizer::isCovered(const std::vector<bool>& term, const std::vector<std::
     return false;
 }
 
-// Остальные методы остаются без изменений
-
 // 1. Расчетный метод для СДНФ
 std::string Minimizer::minimizeDNFCalculation() {
     std::stringstream ss;
