@@ -1,143 +1,66 @@
-import itertools
-from typing import List, Dict
+from minimized_pdnf_by_calculation_method import minimize_sdnf_by_calculation_method
 
+def bcd_to_bcd_plus_2(a, b, c, d):
+    decimal_input = (a << 3) | (b << 2) | (c << 1) | d
+    decimal_output = decimal_input + 4
+    a_out = (decimal_output >> 3) & 1
+    b_out = (decimal_output >> 2) & 1
+    c_out = (decimal_output >> 1) & 1
+    d_out = decimal_output & 1
+    return a_out, b_out, c_out, d_out
 
-def print_truth_table(inputs: List[str], outputs: Dict[str, List[int]], title: str):
-    """Вывод таблицы истинности."""
-    print(f"\n{title}")
-    header = " | ".join(inputs + list(outputs.keys()))
-    print(header)
-    print("-" * len(header))
-    for i in range(2 ** len(inputs)):
-        row = [int(b) for b in bin(i)[2:].zfill(len(inputs))]
-        row_str = " | ".join(str(x) for x in row)
-        for key in outputs:
-            row_str += f" | {outputs[key][i]}"
-        print(row_str)
+def generate_bcd_conversion_table():
+    table = []
+    for a in range(2):
+        for b in range(2):
+            for c in range(2):
+                for d in range(2):
+                    decimal_input = (a << 3) | (b << 2) | (c << 1) | d
+                    if decimal_input > 9:
+                        continue
+                    a_out, b_out, c_out, d_out = bcd_to_bcd_plus_2(a, b, c, d)
+                    table.append([a, b, c, d, a_out, b_out, c_out, d_out])
+    return table
 
+def print_main_bcd_table(table):
+    print(f"{'Вход (Д8421)':<15}{'Выход (Д8421+4)':<15}")
+    print("-" * 30)
+    for row in table:
+        input_bits = ''.join(str(bit) for bit in row[:4])
+        output_bits = ''.join(str(bit) for bit in row[4:])
+        print(f"{input_bits:<15}{output_bits:<15}")
 
-def get_sdnf(function: List[int], inputs: List[str]) -> str:
-    """Получение СДНФ для функции."""
-    sdnf = []
-    for i, val in enumerate(function):
-        if val == 1:
-            terms = []
-            binary = bin(i)[2:].zfill(len(inputs))
-            for j, bit in enumerate(binary):
-                term = inputs[j] if bit == '1' else f"¬{inputs[j]}"
-                terms.append(term)
-            sdnf.append("(" + " ∧ ".join(terms) + ")")
-    return " ∨ ".join(sdnf) if sdnf else "0"
+def print_truth_table_for_bit(table, bit_index):
+    print(f"\nТаблица истинности для выхода {['a','b','c','d'][bit_index]}:")
+    print("a b c d | {0}".format(['a','b','c','d'][bit_index]))
+    print("-" * 20)
+    for row in table:
+        inputs = ' '.join(str(bit) for bit in row[:4])
+        output_bit = row[4 + bit_index]
+        print(f"{inputs} | {output_bit}")
 
+def build_sdnf_for_bit(table, bit_index):
+    terms = []
+    var_names = ['a', 'b', 'c', 'd']
+    for row in table:
+        inputs = row[:4]
+        output_bit = row[4 + bit_index]
+        if output_bit == 1:
+            term = []
+            for i, val in enumerate(inputs):
+                term.append(f"{var_names[i]}" if val else f"!{var_names[i]}")
+            terms.append(f"({'&'.join(term)})")
+    return '|'.join(terms)
 
-def get_sknf(function: List[int], inputs: List[str]) -> str:
-    """Получение СКНФ для функции."""
-    sknf = []
-    for i, val in enumerate(function):
-        if val == 0:
-            terms = []
-            binary = bin(i)[2:].zfill(len(inputs))
-            for j, bit in enumerate(binary):
-                term = f"¬{inputs[j]}" if bit == '1' else inputs[j]
-                terms.append(term)
-            sknf.append("(" + " ∨ ".join(terms) + ")")
-    return " ∧ ".join(sknf) if sknf else "1"
+if __name__ == '__main__':
+    bcd_table = generate_bcd_conversion_table()
+    print_main_bcd_table(bcd_table)
 
-
-def minimize_veitch_karnaugh(function: List[int], inputs: List[str], dont_cares: List[int] = None) -> str:
-    """Минимизация функции с использованием таблицы Вейча-Карно (упрощенно)."""
-    sdnf = get_sdnf(function, inputs)
-    return sdnf
-
-
-def synthesize_subtractor():
-    """Синтез одноразрядного двоичного вычитателя (ОДВ-3)."""
-    inputs = ["A", "B", "B(in)"]
-    # Таблица истинности для ОДВ-3: D = A ⊕ B ⊕ B(in), B(out) = ¬A ∧ (B ∨ B(in))
-    D = [0, 1, 1, 0, 1, 0, 0, 1]  # Разность
-    Bout = [0, 1, 1, 1, 0, 0, 0, 1]  # Занять
-    outputs = {"D": D, "B(out)": Bout}
-
-    print("\n=== Синтез ОДВ-3 ===")
-    print_truth_table(inputs, outputs, "Таблица истинности ОДВ-3")
-
-    # Получение СДНФ
-    D_sdnf = get_sdnf(D, inputs)
-    Bout_sdnf = get_sdnf(Bout, inputs)
-    print(f"\nD СДНФ: {D_sdnf}")
-    print(f"B(out) СДНФ: {Bout_sdnf}")
-
-    # Минимизация (упрощенно)
-    D_min = minimize_veitch_karnaugh(D, inputs)
-    Bout_min = minimize_veitch_karnaugh(Bout, inputs)
-    print(f"\nD минимизированная: {D_min}")
-    print(f"B(out) минимизированная: {Bout_min}")
-
-
-def synthesize_converter():
-    """Синтез преобразователя Д8421 в Д8421+4 (с циклическим переходом для 6-9)."""
-    inputs = ["X3", "X2", "X1", "X0"]
-    truth_table = {
-        0: [0, 1, 0, 0],  # 0 -> 4
-        1: [0, 1, 0, 1],  # 1 -> 5
-        2: [0, 1, 1, 0],  # 2 -> 6
-        3: [0, 1, 1, 1],  # 3 -> 7
-        4: [1, 0, 0, 0],  # 4 -> 8
-        5: [1, 0, 0, 1],  # 5 -> 9
-        6: [0, 0, 0, 0],  # 6 -> 0
-        7: [0, 0, 0, 1],  # 7 -> 1
-        8: [0, 0, 1, 0],  # 8 -> 2
-        9: [0, 0, 1, 1],  # 9 -> 3
-    }
-    dont_cares = list(range(10, 16))
-    outputs = {
-        "Y3": [0] * 16,
-        "Y2": [0] * 16,
-        "Y1": [0] * 16,
-        "Y0": [0] * 16,
-    }
-
-    for i in range(10):
-        if i in truth_table:
-            outputs["Y3"][i] = truth_table[i][0]
-            outputs["Y2"][i] = truth_table[i][1]
-            outputs["Y1"][i] = truth_table[i][2]
-            outputs["Y0"][i] = truth_table[i][3]
-    for i in dont_cares:
-        for y in outputs:
-            outputs[y][i] = None
-
-    print("\n=== Синтез преобразователя Д8421 -> Д8421+4 ===")
-    print_truth_table(inputs, outputs, "Таблица истинности преобразователя")
-
-    print("\nМинимизированные функции:")
-    for y in outputs:
-        func = outputs[y].copy()
-        for i in dont_cares:
-            if y == "Y0":
-                func[i] = 1 if (i % 2 == 1) else 0  # Для X0=1
-            else:
-                func[i] = 0
-        sdnf = get_sdnf(func, inputs)
-        # Ручная корректировка
-        if y == "Y3":
-            sdnf = "¬X3 ∧ X2 ∧ ¬X1"
-        elif y == "Y2":
-            sdnf = "¬X3 ∧ ¬X2"
-        elif y == "Y1":
-            sdnf = "(¬X3 ∧ ¬X2 ∧ X1) ∨ X3"
-        elif y == "Y0":
-            sdnf = "X0"
-        print(f"{y}: {sdnf}")
-
-
-def main():
-    print("Лабораторная работа №4: Синтез комбинационных схем")
-    print("Варианты: Часть 1 - ОДВ-3 (СДНФ), Часть 2 - Д8421 -> Д8421+4")
-
-    synthesize_subtractor()
-    synthesize_converter()
-
-
-if __name__ == "__main__":
-    main()
+    for i in range(4):
+        print_truth_table_for_bit(bcd_table, i)
+        sdnf = build_sdnf_for_bit(bcd_table, i)
+        print(f"\nСДНФ для выхода {['a','b','c','d'][i]}:")
+        print(sdnf)
+        minimized = minimize_sdnf_by_calculation_method(sdnf)
+        print(f"Минимизированное выражение для {['a','b','c','d'][i]}:")
+        print(minimized)
