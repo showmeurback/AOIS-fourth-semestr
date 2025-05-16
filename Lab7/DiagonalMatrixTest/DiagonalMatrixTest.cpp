@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <gtest/gtest.h>
-#include "D:\BSUIR\2 êóðñ\4 ñåìåñòð\ÀÎÈÑ\ËÐ 7\AOIS-LR-7\DiagonalMatrix.h"
-#include "D:\BSUIR\2 êóðñ\4 ñåìåñòð\ÀÎÈÑ\ËÐ 7\AOIS-LR-7\DiagonalMatrix.cpp"
+#include "D:\BSUIR\2 ÃªÃ³Ã°Ã±\4 Ã±Ã¥Ã¬Ã¥Ã±Ã²Ã°\Ã€ÃŽÃˆÃ‘\Ã‹Ã 7\AOIS-LR-7\DiagonalMatrix.h"
+#include "D:\BSUIR\2 ÃªÃ³Ã°Ã±\4 Ã±Ã¥Ã¬Ã¥Ã±Ã²Ã°\Ã€ÃŽÃˆÃ‘\Ã‹Ã 7\AOIS-LR-7\DiagonalMatrix.cpp"
 #include <sstream>
 #include <vector>
 #include <string>
